@@ -67,7 +67,7 @@ class RestAssuredJUnitMethodBodyBuilder extends JUnitMethodBodyBuilder {
 	protected void processHeaderElement(BlockBuilder blockBuilder, String property, Object value) {
 		if (value instanceof NotToEscapePattern) {
 			blockBuilder.addLine("assertThat(response.header(\"$property\"))." +
-					"${createMatchesMethod(value.serverValue.pattern().replace("\\", "\\\\"))};")
+					"${createMatchesMethod((value as NotToEscapePattern).serverValue.pattern().replace("\\", "\\\\"))};")
 		}
 	}
 
@@ -83,7 +83,8 @@ class RestAssuredJUnitMethodBodyBuilder extends JUnitMethodBodyBuilder {
 
 	@Override
 	protected void processHeaderElement(BlockBuilder blockBuilder, String property, ExecutionProperty exec) {
-		blockBuilder.addLine("${exec.insertValue("response.header(\"$property\")")};")
+		String prop = wrappedWithBracketsForDottedProp(property)
+		blockBuilder.addLine("${exec.insertValue("response.header(\"$prop\")")};")
 	}
 
 }

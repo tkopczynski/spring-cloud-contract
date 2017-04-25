@@ -63,17 +63,19 @@ abstract class SpockMethodRequestProcessingBodyBuilder extends RequestProcessing
 
 	@Override
 	protected String getResponseBodyPropertyComparisonString(String property, ExecutionProperty value) {
-		return value.insertValue("responseBody${property}")
+		String trailingKey = trailingKey(property)
+		return value.insertValue("responseBody.\"${trailingKey}\"")
 	}
 
 	@Override
 	protected void processBodyElement(BlockBuilder blockBuilder, String property, ExecutionProperty exec) {
-		blockBuilder.addLine("${exec.insertValue("parsedJson.read('\$$property')")}")
+		String prop = wrappedWithBracketsForDottedProp(property)
+		blockBuilder.addLine("${exec.insertValue("parsedJson.read('''\$$prop''')")}")
 	}
 
 	@Override
 	protected void processBodyElement(BlockBuilder blockBuilder, String property, Map.Entry entry) {
-		processBodyElement(blockBuilder, property + "." + entry.key, entry.value)
+		processBodyElement(blockBuilder, property, property + "." + entry.key, entry.value)
 	}
 
 	@Override

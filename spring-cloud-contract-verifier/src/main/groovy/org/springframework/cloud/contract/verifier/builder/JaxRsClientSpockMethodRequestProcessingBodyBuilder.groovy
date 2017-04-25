@@ -145,7 +145,8 @@ class JaxRsClientSpockMethodRequestProcessingBodyBuilder extends SpockMethodRequ
 
 	@Override
 	protected void processHeaderElement(BlockBuilder blockBuilder, String property, ExecutionProperty exec) {
-		blockBuilder.addLine("${exec.insertValue("response.getHeaderString(\'$property\')")}")
+		String prop = wrappedWithBracketsForDottedProp(property)
+		blockBuilder.addLine("${exec.insertValue("response.getHeaderString(\'$prop\')")}")
 	}
 
 	@Override

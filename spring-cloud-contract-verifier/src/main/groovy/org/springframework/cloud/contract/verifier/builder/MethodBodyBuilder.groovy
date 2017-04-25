@@ -331,7 +331,7 @@ abstract class MethodBodyBuilder {
 				}
 			}
 		}
-		processBodyElement(bb, "", convertedResponseBody)
+		processBodyElement(bb, "", "", convertedResponseBody)
 	}
 
 	protected void methodForEqualityCheck(BodyMatcher bodyMatcher, BlockBuilder bb, Object copiedBody) {
@@ -458,6 +458,21 @@ abstract class MethodBodyBuilder {
 		return '"' + StringEscapeUtils.escapeJava(string) + '"'
 	}
 
+	protected String trailingKey(String key) {
+		if (key.startsWith(".")) {
+			return key.substring(1)
+		}
+		return key
+	}
+
+	protected String wrappedWithBracketsForDottedProp(String key) {
+		String remindingKey = trailingKey(key)
+		if (remindingKey.contains(".")) {
+			return "['${remindingKey}']"
+		}
+		return key
+	}
+
 	/**
 	 * Post processing of each JSON path entry
 	 */
@@ -477,8 +492,8 @@ abstract class MethodBodyBuilder {
 	 * Appends to {@link BlockBuilder} processing of the given String value.
 	 */
 	protected void processText(BlockBuilder blockBuilder, String property, Object value) {
-		if (value instanceof String && value.startsWith('$')) {
-			String newValue = stripFirstChar(value).replaceAll('\\$value', "responseBody$property")
+		if (value instanceof String && (value as String).startsWith('$')) {
+			String newValue = stripFirstChar((value as String)).replaceAll('\\$value', "responseBody$property")
 			blockBuilder.addLine(newValue)
 			addColonIfRequired(blockBuilder)
 		} else {
@@ -499,7 +514,14 @@ abstract class MethodBodyBuilder {
 	/**
 	 * Appends to the {@link BlockBuilder} the assertion for the given body element
 	 */
+	@Deprecated
 	protected void processBodyElement(BlockBuilder blockBuilder, String property, Object value) {
+	}
+
+	/**
+	 * Appends to the {@link BlockBuilder} the assertion for the given body element
+	 */
+	protected void processBodyElement(BlockBuilder blockBuilder, String oldProp, String property, Object value) {
 	}
 
 	/**

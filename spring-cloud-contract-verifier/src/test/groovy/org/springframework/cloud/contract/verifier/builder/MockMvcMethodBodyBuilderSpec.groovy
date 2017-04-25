@@ -1690,7 +1690,7 @@ World.'''"""
 			builder.then(blockBuilder)
 			def test = blockBuilder.toString()
 		then:
-			test.contains('assertThatRejectionReasonIsNull(parsedJson.read(\'$.rejectionReason.title\'))')
+			test.contains('assertThatRejectionReasonIsNull(parsedJson.read(\'\'\'$.rejectionReason.title\'\'\'))')
 		when:
 			SyntaxChecker.tryToCompileGroovy(blockBuilder.toString())
 		then:
