@@ -86,7 +86,14 @@ class SingleTestGeneratorSpec extends Specification {
 		String changedTest = classToTest
 				.replace("public class Test", "public class Test${name}")
 				.replace("public class ContractsTest", "public class Test${name}")
-		SyntaxChecker.tryToCompileJavaWithoutImports("test.Test${name}", changedTest)
+		String fqn = FQN(classToTest)
+		SyntaxChecker.tryToCompileJavaWithoutImports("${fqn}${name}", changedTest)
+	}
+
+	static String FQN(String classToTest) {
+		return classToTest.contains("0_1_0_dev_1_uncommitted_d1174dd") ?
+				"org.springframework.cloud.contract.verifier.tests.com_uscm.dale_api44_spec._0_1_0_dev_1_uncommitted_d1174dd.Test" :
+				"test.Test"
 	}
 
 	public static final Closure JAVA_JAXRS_ASSERTER = { String classToTest ->
@@ -94,7 +101,8 @@ class SingleTestGeneratorSpec extends Specification {
 		String changedTest = classToTest
 				.replace("public class Test {", "public class Test${name} {\njavax.ws.rs.client.WebTarget webTarget;\n")
 				.replace("public class ContractsTest {", "public class Test${name} {\njavax.ws.rs.client.WebTarget webTarget;\n")
-		SyntaxChecker.tryToCompileJavaWithoutImports("test.Test${name}", changedTest)
+		String fqn = FQN(classToTest)
+		SyntaxChecker.tryToCompileJavaWithoutImports("${fqn}${name}", changedTest)
 	}
 
 	public static final Closure GROOVY_ASSERTER = { String classToTest ->
@@ -163,13 +171,13 @@ class SingleTestGeneratorSpec extends Specification {
 			int size = new TestGenerator(properties).generate()
 		then:
 			size > 0
-			asserter(new File(newFolder.parent, "/org/springframework/cloud/contract/verifier/tests/com_uscm/dale_api44_spec/0_1_0_dev_1_uncommitted_d1174dd/ContractsTest.java").text)
+			asserter(new File(newFolder.parent, "/org/springframework/cloud/contract/verifier/tests/com_uscm/dale_api44_spec/0_1_0_dev_1_uncommitted_d1174dd/${testName}").text)
 		where:
-			testFramework | mode              | asserter
-			JUNIT         | TestMode.MOCKMVC  | JAVA_ASSERTER
-			JUNIT         | TestMode.EXPLICIT | JAVA_ASSERTER
-			SPOCK         | TestMode.MOCKMVC  | GROOVY_ASSERTER
-			SPOCK         | TestMode.EXPLICIT | GROOVY_ASSERTER
+			testFramework | mode              | asserter        | testName
+			JUNIT         | TestMode.MOCKMVC  | JAVA_ASSERTER   | "ContractsTest.java"
+			JUNIT         | TestMode.EXPLICIT | JAVA_ASSERTER   | "ContractsTest.java"
+			SPOCK         | TestMode.MOCKMVC  | GROOVY_ASSERTER | "ContractsSpec.groovy"
+			SPOCK         | TestMode.EXPLICIT | GROOVY_ASSERTER | "ContractsSpec.groovy"
 	}
 
 	def "should build test class for #testFramework with Rest Assured 3.0"() {
